@@ -26,12 +26,40 @@
 
 @synthesize bridge = _bridge;
 
+static NSString * const AUDIO_CHANGED_NOTIFICATION = @"AUDIO_CHANGED_NOTIFICATION";
+
 - (instancetype)init
 {
     if (self = [super init]) {
         self.toneGenRef = [[TGSineWaveToneGenerator alloc] initWithChannels:2];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChangeListenerCallback:) name:AVAudioSessionRouteChangeNotification object:nil];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)audioRouteChangeListenerCallback:(NSNotification*)notification
+{
+    [_bridge.eventDispatcher sendDeviceEventWithName:AUDIO_CHANGED_NOTIFICATION
+      body:(@{
+        @"audioJackPluggedIn": @([RNFrequency isAudioJackInUse])
+      });];
+}
+
++ (BOOL) isAudioJackInUse
+{
+    AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
+
+    for (AVAudioSessionPortDescription* desc in [route outputs]) {
+        if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones])
+            return YES;
+    }
+
+    return NO;
 }
 
 - (dispatch_queue_t)methodQueue
@@ -47,6 +75,12 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
     self.toneGenRef->_channels[0].frequency=frequency;
     [self.toneGenRef playForDuration:duration];
     resolve(@YES);
+}
+
+RCT_EXPORT_METHOD(isAudioJackPluggedIn:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@[RNFrequency isAudioJackInUse]);
 }
 
 @end
