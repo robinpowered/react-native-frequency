@@ -69,6 +69,11 @@ static NSString * const AUDIO_CHANGED_NOTIFICATION = @"AUDIO_CHANGED_NOTIFICATIO
 
 RCT_EXPORT_MODULE()
 
+- (NSDictionary *)constantsToExport
+{
+    return @{ @"AUDIO_CHANGED_NOTIFICATION": AUDIO_CHANGED_NOTIFICATION };
+}
+
 RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
