@@ -47,7 +47,7 @@ static NSString * const AUDIO_CHANGED_NOTIFICATION = @"AUDIO_CHANGED_NOTIFICATIO
     [_bridge.eventDispatcher sendDeviceEventWithName:AUDIO_CHANGED_NOTIFICATION
       body:(@{
         @"audioJackPluggedIn": @([RNFrequency isAudioJackInUse])
-      });];
+      })];
 }
 
 + (BOOL) isAudioJackInUse
@@ -81,7 +81,7 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
 RCT_EXPORT_METHOD(isAudioJackPluggedIn:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    resolve(@[RNFrequency isAudioJackInUse]);
+    resolve(@([RNFrequency isAudioJackInUse]));
 }
 
 @end
