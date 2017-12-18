@@ -2,22 +2,23 @@ package com.robinpowered.RNFrequency;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
-
 import com.facebook.react.bridge.WritableNativeMap;
+
 import java.util.Map;
-import android.content.BroadcastReceiver;
 import java.util.HashMap;
-import android.content.Context;
 import javax.annotation.Nullable;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import android.os.Build;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.AudioDeviceInfo;
+import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
   private final String moduleName = "RNFrequency";
