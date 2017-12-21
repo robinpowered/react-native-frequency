@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -22,38 +23,38 @@ import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
   private final String moduleName = "RNFrequency";
-  public static final String AUDIO_CHANGED_NOTIFICATION = "AUDIO_CHANGED_NOTIFICATION";
+  private final String AUDIO_CHANGED_NOTIFICATION = "AUDIO_CHANGED_NOTIFICATION";
 
   public RNFrequencyModule(ReactApplicationContext reactContext) {
     super(reactContext);
 
     final ReactApplicationContext thisContext = reactContext;
 
+    IntentFilter headphonesFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
     BroadcastReceiver headphonesReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        boolean headsetPluggedIn = false;
-        if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-          int state = intent.getIntExtra("state", -1);
-          switch (state) {
-          case (0):
-            headsetPluggedIn = false;
-            break;
-          case (1):
-            headsetPluggedIn = true;
-            break;
-          default:
-            headsetPluggedIn = false;
-          }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean headsetPluggedIn = false;
+            int state = intent.getIntExtra("state", -1);
+            switch (state) {
+                case (0):
+                    headsetPluggedIn = false;
+                    break;
+                case (1):
+                    headsetPluggedIn = true;
+                    break;
+                default:
+                    headsetPluggedIn = false;
+            }
+            WritableNativeMap data = new WritableNativeMap();
+            data.putBoolean("audioJackPluggedIn", headsetPluggedIn);
+            if (thisContext.hasActiveCatalystInstance()) {
+                thisContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(AUDIO_CHANGED_NOTIFICATION,
+                        data);
+            }
         }
-        WritableNativeMap data = new WritableNativeMap();
-        data.putBoolean("audioJackPluggedIn", headsetPluggedIn);
-        if (thisContext.hasActiveCatalystInstance()) {
-          thisContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(AUDIO_CHANGED_NOTIFICATION,
-              data);
-        }
-      }
     };
+    thisContext.registerReceiver(headphonesReceiver, headphonesFilter);
   }
 
   private boolean isHeadSetPluggedIn() {
@@ -86,8 +87,8 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void playFrequency(double frequency, double duration, final Promise promise) {
-    final int dur = (int) duration; // duration of sound
-    final int freq = (int) frequency; // Hz (maximum frequency is 7902.13Hz (B8))
+    final int dur = (int) duration;
+    final int freq = (int) frequency;
 
     int count = (int)(44100.0 * 2.0 * (dur)) & ~1;
 
