@@ -36,30 +36,26 @@ OSStatus RenderTone(
     const double amplitude = 1.0;
     const double sampleRate = 44100.00;
     const int channel = 0;
-    //assert(ioData->mNumberBuffers == toneGenerator->_numChannels);
+
     double theta = toneGenerator->_channels[channel].theta;
 
     double theta_increment = 2.0 * M_PI * toneGenerator->_channels[channel].frequency / sampleRate;
 
     Float32 *buffer = (Float32 *)ioData->mBuffers[channel].mData;
-    //for (size_t chan = 0; chan < toneGenerator->_numChannels; chan++) {
 
+    // Generate the samples
+    for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
+        buffer[frame] = sin(theta) * amplitude;
 
-
-        // Generate the samples
-        for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
-            buffer[frame] = sin(theta) * amplitude;
-
-            theta += theta_increment;
-            // Basically do modulo
-            if (theta > 2.0 * M_PI) {
-                theta -= 2.0 * M_PI;
-            }
+        theta += theta_increment;
+        // Basically do modulo
+        if (theta > 2.0 * M_PI) {
+            theta -= 2.0 * M_PI;
         }
+    }
 
-        // Store the theta back in the view controller
-        toneGenerator->_channels[channel].theta = theta;
-    //}
+    // Store the theta back in the view controller
+    toneGenerator->_channels[channel].theta = theta;
 
 	return noErr;
 }
@@ -83,13 +79,6 @@ OSStatus RenderTone(
 
         _sampleRate = SINE_WAVE_TONE_GENERATOR_SAMPLE_RATE_DEFAULT;
         [self _setupAudioSession];
-//        OSStatus result = AudioSessionInitialize(NULL, NULL, ToneInterruptionListener, (__bridge void *)(self));
-//        if (result == kAudioSessionNoError)
-//        {
-//            UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
-//            AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
-//        }
-//        AudioSessionSetActive(true);
     }
 
     return self;
