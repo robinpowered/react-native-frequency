@@ -118,15 +118,15 @@ OSStatus RenderTone(
 - (void)play {
     NSLog(@"Playing Tone Now");
     if (!_toneUnit) {
-		[self _createToneUnit];
-		// Stop changing parameters on the unit
-		OSErr err = AudioUnitInitialize(_toneUnit);
-		NSAssert1(err == noErr, @"Error initializing unit: %hd", err);
+      [self _createToneUnit];
+      // Stop changing parameters on the unit
+      OSErr err = AudioUnitInitialize(_toneUnit);
+      NSAssert1(err == noErr, @"Error initializing unit: %hd", err);
 
-		// Start playback
-		err = AudioOutputUnitStart(_toneUnit);
-		NSAssert1(err == noErr, @"Error starting unit: %hd", err);
-	}
+      // Start playback
+      err = AudioOutputUnitStart(_toneUnit);
+      NSAssert1(err == noErr, @"Error starting unit: %hd", err);
+	  }
 }
 
 - (void)stop {
