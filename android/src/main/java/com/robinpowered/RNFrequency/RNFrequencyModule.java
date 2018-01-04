@@ -22,6 +22,7 @@ import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
   private static final String MODULE_NAME = "RNFrequency";
+  private AudioTrack track;
 
   public RNFrequencyModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -37,8 +38,11 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
     final int dur = (int) duration;
     final int freq = (int) frequency;
 
+    // ~1 to make sure count is an even number
+    // *2 for stereo
     int count = (int)(44100.0 * 2.0 * (dur)) & ~1;
 
+    // 0x7FFF to convert 32b to 16b
     short[] samples = new short[count];
     for(int i = 0; i < count; i += 2){
       short sample = (short)(Math.sin(2 * Math.PI * i / (44100.0 / freq)) * 0x7FFF);
@@ -46,9 +50,21 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
       samples[i + 1] = sample;
     }
 
-    AudioTrack track;
+    // If track is initialized, stop playback and release resources
+    if (track != null && track.getState() != AudioTrack.STATE_UNINITIALIZED) {
+        if (track.getPlayState() != AudioTrack.PLAYSTATE_STOPPED) {
+            try{
+                track.stop();
+            }catch (IllegalStateException e)
+            {
+                // no-op
+            }
 
-    // create audio track
+        }
+        track.release();
+    }
+
+    // create audio track - methods used differ based on OS version
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
         AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
@@ -67,9 +83,21 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
     // push sample into AudioTrack object
     track.write(samples, 0, count);
 
+    // callback when track finishes playing
+    track.setNotificationMarkerPosition(count);
+
+    track.setPlaybackPositionUpdateListener(new OnPlaybackPositionUpdateListener() {
+        @Override
+        public void onPeriodicNotification(AudioTrack track) {
+            // no-op
+        }
+        @Override
+        public void onMarkerReached(AudioTrack track) {
+            promise.resolve(true);
+        }
+    });
+
     // play track
     track.play();
-
-    promise.resolve(true);
   }
 }
