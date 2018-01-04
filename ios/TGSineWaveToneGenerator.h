@@ -48,7 +48,7 @@ typedef struct {
 
 - (id)initWithChannels:(UInt32)size;
 - (id)initWithFrequency:(double)hertz amplitude:(double)volume;
-- (void)playForDuration:(NSTimeInterval)time;
+- (void)playForDuration:(NSTimeInterval)time callback:(void(^)(BOOL))callback;
 - (void)play;
 - (void)stop;
 

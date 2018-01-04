@@ -113,7 +113,7 @@ OSStatus RenderTone(
 - (void)playForDuration:(NSTimeInterval)time callback:(void(^)(BOOL))callback{
     [self play];
     [self performSelector:@selector(stop) withObject:nil afterDelay:time];
-    [self performSelector:@selector(callback(@YES)) withObject:nil afterDelay:time];
+    [self performSelector:@selector(callback:) withObject:@"1" afterDelay:time];
 }
 
 - (void)play {
