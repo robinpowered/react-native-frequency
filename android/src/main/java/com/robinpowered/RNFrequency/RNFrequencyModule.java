@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.HashMap;
 import javax.annotation.Nullable;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -22,67 +21,15 @@ import android.media.AudioDeviceInfo;
 import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
-  private final String moduleName = "RNFrequency";
-  private final String AUDIO_CHANGED_NOTIFICATION = "AUDIO_CHANGED_NOTIFICATION";
+  private static final String MODULE_NAME = "RNFrequency";
 
   public RNFrequencyModule(ReactApplicationContext reactContext) {
     super(reactContext);
-
-    final ReactApplicationContext thisContext = reactContext;
-
-    IntentFilter headphonesFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-    BroadcastReceiver headphonesReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            boolean headsetPluggedIn = false;
-            int state = intent.getIntExtra("state", -1);
-            switch (state) {
-                case (0):
-                    headsetPluggedIn = false;
-                    break;
-                case (1):
-                    headsetPluggedIn = true;
-                    break;
-                default:
-                    headsetPluggedIn = false;
-            }
-            WritableNativeMap data = new WritableNativeMap();
-            data.putBoolean("audioJackPluggedIn", headsetPluggedIn);
-            if (thisContext.hasActiveCatalystInstance()) {
-                thisContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(AUDIO_CHANGED_NOTIFICATION,
-                        data);
-            }
-        }
-    };
-    thisContext.registerReceiver(headphonesReceiver, headphonesFilter);
-  }
-
-  private boolean isHeadSetPluggedIn() {
-    AudioManager am = (AudioManager) getReactApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      return am.isWiredHeadsetOn();
-    } else {
-      AudioDeviceInfo[] devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-      for (int i = 0; i < devices.length; i++) {
-        AudioDeviceInfo device = devices[i];
-        if (device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public @Nullable Map<String, Object> getConstants() {
-    HashMap<String, Object> constants = new HashMap<String, Object>();
-    constants.put(AUDIO_CHANGED_NOTIFICATION, AUDIO_CHANGED_NOTIFICATION);
-    return constants;
   }
 
   @Override
   public String getName() {
-    return moduleName;
+    return MODULE_NAME;
   }
 
   @ReactMethod
@@ -99,18 +46,30 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
       samples[i + 1] = sample;
     }
 
-    AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
-      AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
-      count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
+    AudioTrack track;
 
+    // create audio track
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+        AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
+        count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
+    } else {
+        track = new AudioTrack.Builder()
+            .setAudioFormat(new AudioFormat.Builder()
+                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                .setSampleRate(44100)
+                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .build())
+            .setBufferSizeInBytes(count * (Short.SIZE / 8))
+            .build();
+    }
+
+    // push sample into AudioTrack object
     track.write(samples, 0, count);
+
+    // play track
     track.play();
 
     promise.resolve(true);
-  }
-
-  @ReactMethod
-  public void isAudioJackPluggedIn(final Promise promise) {
-    promise.resolve(isHeadSetPluggedIn());
   }
 }
