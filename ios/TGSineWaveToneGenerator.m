@@ -110,9 +110,10 @@ OSStatus RenderTone(
     }
 }
 
-- (void)playForDuration:(NSTimeInterval)time {
+- (void)playForDuration:(NSTimeInterval)time callback:(void(^)(BOOL))callback{
     [self play];
     [self performSelector:@selector(stop) withObject:nil afterDelay:time];
+    [self performSelector:@selector(callback(@YES)) withObject:nil afterDelay:time];
 }
 
 - (void)play {

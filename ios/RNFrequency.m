@@ -27,10 +27,12 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self.toneGenRef stop];
     self.toneGenRef->_channels[0].frequency=frequency;
     self.toneGenRef->_channels[1].frequency=frequency;
-    [self.toneGenRef playForDuration:duration];
-    resolve(@YES);
+    [self.toneGenRef playForDuration:duration callback:^(BOOL freqPlayed){
+        resolve(@(freqPlayed));
+    }];
 }
 
 @end
