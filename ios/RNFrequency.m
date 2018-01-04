@@ -30,8 +30,8 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
     [self.toneGenRef stop];
     self.toneGenRef->_channels[0].frequency=frequency;
     self.toneGenRef->_channels[1].frequency=frequency;
-    [self.toneGenRef playForDuration:duration callback:^(BOOL freqPlayed){
-        resolve(@(freqPlayed));
+    [self.toneGenRef playForDuration:duration callback:^(void){
+        resolve(@(YES));
     }];
 }
 

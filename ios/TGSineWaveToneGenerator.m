@@ -110,10 +110,11 @@ OSStatus RenderTone(
     }
 }
 
-- (void)playForDuration:(NSTimeInterval)time callback:(void(^)(BOOL))callback{
+- (void)playForDuration:(NSTimeInterval)time callback:(void(^)(void))callback{
     [self play];
     [self performSelector:@selector(stop) withObject:nil afterDelay:time];
-    [self performSelector:@selector(callback:) withObject:@"1" afterDelay:time];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*time),
+    dispatch_get_current_queue(), callback);
 }
 
 - (void)play {
