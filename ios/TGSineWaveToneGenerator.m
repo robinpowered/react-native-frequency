@@ -111,10 +111,16 @@ OSStatus RenderTone(
 }
 
 - (void)playForDuration:(NSTimeInterval)time callback:(void(^)(void))callback{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                         selector:@selector(stop)
+                                           object:nil];
     [self play];
     [self performSelector:@selector(stop) withObject:nil afterDelay:time];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*time),
-    dispatch_get_current_queue(), callback);
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*time),
+        dispatch_get_current_queue(),
+        callback
+    );
 }
 
 - (void)play {
