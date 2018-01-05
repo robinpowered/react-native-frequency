@@ -5,12 +5,4 @@ import {
 
 const {RNFrequency} = NativeModules;
 
-export default {
-  ...RNFrequency,
-  addListener (callback) {
-    return DeviceEventEmitter.addListener(
-      RNFrequency.AUDIO_CHANGED_NOTIFICATION,
-      callback
-    );
-  }
-};
+export default RNFrequency;
