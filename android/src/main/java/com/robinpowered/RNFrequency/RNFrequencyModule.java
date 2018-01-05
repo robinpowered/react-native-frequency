@@ -40,7 +40,7 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
 
     // ~1 to make sure count is an even number
     // *2 for stereo
-    int count = (int)(44100.0 * 2.0 * (dur)) & ~1;
+    int count = (int)(11025.0 * 2.0 * (dur)) & ~1;
 
     // 0x7FFF to convert 32b to 16b
     short[] samples = new short[count];
@@ -66,14 +66,14 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
 
     // create audio track - methods used differ based on OS version
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-        track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+        track = new AudioTrack(AudioManager.STREAM_MUSIC, 11025,
         AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
         count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
     } else {
         track = new AudioTrack.Builder()
             .setAudioFormat(new AudioFormat.Builder()
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(44100)
+                .setSampleRate(11025)
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
                 .build())
             .setBufferSizeInBytes(count * (Short.SIZE / 8))
@@ -83,21 +83,15 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
     // push sample into AudioTrack object
     track.write(samples, 0, count);
 
-    // callback when track finishes playing
-    track.setNotificationMarkerPosition(count);
-
-    track.setPlaybackPositionUpdateListener(new OnPlaybackPositionUpdateListener() {
-        @Override
-        public void onPeriodicNotification(AudioTrack track) {
-            // no-op
-        }
-        @Override
-        public void onMarkerReached(AudioTrack track) {
-            promise.resolve(true);
-        }
-    });
-
     // play track
     track.play();
+
+    new android.os.Handler().postDelayed(
+        new Runnable() {
+            public void run() {
+                promise.resolve(true);
+            }
+        },
+    (long) (duration * 1000));
   }
 }
