@@ -33,8 +33,10 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
         track.release();
         track = null;
 
-        promise.reject(TRACK_STOPPED_PLAYING, "Track stopped playing");
-        promise = null;
+        if (promise !=  null) {
+            promise.reject(TRACK_STOPPED_PLAYING, "Track stopped playing");
+            promise = null;
+        }
     }
 
     private void saveAudioTrackAndPromise(AudioTrack audioTrack, Promise promise) {
