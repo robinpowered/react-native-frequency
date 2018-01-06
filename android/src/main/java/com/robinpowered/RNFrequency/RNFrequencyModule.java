@@ -2,22 +2,12 @@ package com.robinpowered.RNFrequency;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.WritableNativeMap;
 
-import java.util.Map;
-import java.util.HashMap;
-import javax.annotation.Nullable;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.media.AudioDeviceInfo;
 import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
@@ -59,11 +49,11 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void playFrequency(double frequency, double duration, final Promise promise) {
-        if (track != null
-            && track.getState() != AudioTrack.STATE_UNINITIALIZED
-            && track.getPlayState() != AudioTrack.PLAYSTATE_STOPPED
+        if (track != null &&
+            track.getState() != AudioTrack.STATE_UNINITIALIZED &&
+            track.getPlayState() != AudioTrack.PLAYSTATE_STOPPED
         ) {
-          stop();
+            stop();
         }
 
         final int dur = (int) duration;
@@ -73,14 +63,14 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
         final byte soundData[] = new byte[2 * numOfSamples];
 
         for (int i = 0; i < numOfSamples; ++i) {
-         sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
+            sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE / frequency));
         }
 
         int idx = 0;
-        for (double dVal : sample) {
-         short val = (short) (dVal * 32767);
-         soundData[idx++] = (byte) (val & 0x00ff);
-         soundData[idx++] = (byte) ((val & 0xff00) >>> 8);
+        for (double dVal: sample) {
+            short val = (short)(dVal * 32767);
+            soundData[idx++] = (byte)(val & 0x00ff);
+            soundData[idx++] = (byte)((val & 0xff00) >>> 8);
         }
 
         AudioTrack freqTrack;
@@ -115,6 +105,7 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
                 track.release();
                 track = null;
                 promise.resolve(true);
+                RNFrequencyModule.this.promise = null;
             }
         });
 
