@@ -11,7 +11,7 @@ import android.media.AudioTrack;
 import android.os.Build;
 
 public class RNFrequencyModule extends ReactContextBaseJavaModule {
-    private static final String MODULE_NAME = "RNFrequency";
+    private static final String MODULE_NAME = "FrequencyManager";
     private static final String TRACK_STOPPED_PLAYING = "TRACK_STOPPED_PLAYING";
     private static final int SAMPLE_RATE = 44100;
 
