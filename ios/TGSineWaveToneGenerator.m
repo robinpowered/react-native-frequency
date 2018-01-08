@@ -24,14 +24,14 @@
 OSStatus RenderTone(
                     void *inRefCon,
                     AudioUnitRenderActionFlags   *ioActionFlags,
-                    const AudioTimeStamp 		*inTimeStamp,
-                    UInt32 						inBusNumber,
-                    UInt32 						inNumberFrames,
-                    AudioBufferList 			*ioData)
+                    const AudioTimeStamp         *inTimeStamp,
+                    UInt32                         inBusNumber,
+                    UInt32                         inNumberFrames,
+                    AudioBufferList             *ioData)
 
 {
-	// Get the tone parameters out of the object
-	TGSineWaveToneGenerator *toneGenerator = (__bridge TGSineWaveToneGenerator *)inRefCon;
+    // Get the tone parameters out of the object
+    TGSineWaveToneGenerator *toneGenerator = (__bridge TGSineWaveToneGenerator *)inRefCon;
 
     const double amplitude = 1.0;
     const double sampleRate = 44100.00;
@@ -57,7 +57,7 @@ OSStatus RenderTone(
     // Store the theta back in the view controller
     toneGenerator->_channels[channel].theta = theta;
 
-	return noErr;
+    return noErr;
 }
 
 @implementation TGSineWaveToneGenerator
@@ -110,40 +110,36 @@ OSStatus RenderTone(
     }
 }
 
-- (void)playForDuration:(NSTimeInterval)time callback:(void(^)(void))callback{
-    [NSObject cancelPreviousPerformRequestsWithTarget:self
-                                         selector:@selector(stop)
-                                           object:nil];
+- (void)playForDuration:(NSTimeInterval)time {
     [self play];
     [self performSelector:@selector(stop) withObject:nil afterDelay:time];
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*time),
-        dispatch_get_current_queue(),
-        callback
-    );
+}
+
+- (BOOL)isPlaying {
+    return _toneUnit;
 }
 
 - (void)play {
     NSLog(@"Playing Tone Now");
     if (!_toneUnit) {
-      [self _createToneUnit];
-      // Stop changing parameters on the unit
-      OSErr err = AudioUnitInitialize(_toneUnit);
-      NSAssert1(err == noErr, @"Error initializing unit: %hd", err);
+        [self _createToneUnit];
+        // Stop changing parameters on the unit
+        OSErr err = AudioUnitInitialize(_toneUnit);
+        NSAssert1(err == noErr, @"Error initializing unit: %hd", err);
 
-      // Start playback
-      err = AudioOutputUnitStart(_toneUnit);
-      NSAssert1(err == noErr, @"Error starting unit: %hd", err);
-	  }
+        // Start playback
+        err = AudioOutputUnitStart(_toneUnit);
+        NSAssert1(err == noErr, @"Error starting unit: %hd", err);
+    }
 }
 
 - (void)stop {
     if (_toneUnit) {
-		AudioOutputUnitStop(_toneUnit);
-		AudioUnitUninitialize(_toneUnit);
-		AudioComponentInstanceDispose(_toneUnit);
-		_toneUnit = nil;
-	}
+        AudioOutputUnitStop(_toneUnit);
+        AudioUnitUninitialize(_toneUnit);
+        AudioComponentInstanceDispose(_toneUnit);
+        _toneUnit = nil;
+    }
 }
 
 - (void)_setupAudioSession {
@@ -169,56 +165,57 @@ OSStatus RenderTone(
 }
 
 - (void)_createToneUnit {
-	// Configure the search parameters to find the default playback output unit
-	// (called the kAudioUnitSubType_RemoteIO on iOS but
-	// kAudioUnitSubType_DefaultOutput on Mac OS X)
-	AudioComponentDescription defaultOutputDescription;
-	defaultOutputDescription.componentType = kAudioUnitType_Output;
-	defaultOutputDescription.componentSubType = kAudioUnitSubType_RemoteIO;
-	defaultOutputDescription.componentManufacturer = kAudioUnitManufacturer_Apple;
-	defaultOutputDescription.componentFlags = 0;
-	defaultOutputDescription.componentFlagsMask = 0;
+    // Configure the search parameters to find the default playback output unit
+    // (called the kAudioUnitSubType_RemoteIO on iOS but
+    // kAudioUnitSubType_DefaultOutput on Mac OS X)
+    AudioComponentDescription defaultOutputDescription;
+    defaultOutputDescription.componentType = kAudioUnitType_Output;
+    defaultOutputDescription.componentSubType = kAudioUnitSubType_RemoteIO;
+    defaultOutputDescription.componentManufacturer = kAudioUnitManufacturer_Apple;
+    defaultOutputDescription.componentFlags = 0;
+    defaultOutputDescription.componentFlagsMask = 0;
 
-	// Get the default playback output unit
-	AudioComponent defaultOutput = AudioComponentFindNext(NULL, &defaultOutputDescription);
-	NSAssert(defaultOutput, @"Can't find default output");
+    // Get the default playback output unit
+    AudioComponent defaultOutput = AudioComponentFindNext(NULL, &defaultOutputDescription);
+    NSAssert(defaultOutput, @"Can't find default output");
 
-	// Create a new unit based on this that we'll use for output
-	OSErr err = AudioComponentInstanceNew(defaultOutput, &_toneUnit);
-	NSAssert1(_toneUnit, @"Error creating unit: %hd", err);
+    // Create a new unit based on this that we'll use for output
+    OSErr err = AudioComponentInstanceNew(defaultOutput, &_toneUnit);
+    NSAssert1(_toneUnit, @"Error creating unit: %hd", err);
 
-	// Set our tone rendering function on the unit
-	AURenderCallbackStruct input;
-	input.inputProc = RenderTone;
-	input.inputProcRefCon = (__bridge void *)(self);
-	err = AudioUnitSetProperty(_toneUnit,
+    // Set our tone rendering function on the unit
+    AURenderCallbackStruct input;
+    input.inputProc = RenderTone;
+    input.inputProcRefCon = (__bridge void *)(self);
+    err = AudioUnitSetProperty(_toneUnit,
                                kAudioUnitProperty_SetRenderCallback,
                                kAudioUnitScope_Input,
                                0,
                                &input,
                                sizeof(input));
-	NSAssert1(err == noErr, @"Error setting callback: %hd", err);
+    NSAssert1(err == noErr, @"Error setting callback: %hd", err);
 
-	// Set the format to 32 bit, single channel, floating point, linear PCM
-	const int four_bytes_per_float = 4;
-	const int eight_bits_per_byte = 8;
-	AudioStreamBasicDescription streamFormat;
-	streamFormat.mSampleRate = _sampleRate;
-	streamFormat.mFormatID = kAudioFormatLinearPCM;
-	streamFormat.mFormatFlags =
+    // Set the format to 32 bit, single channel, floating point, linear PCM
+    const int four_bytes_per_float = 4;
+    const int eight_bits_per_byte = 8;
+    AudioStreamBasicDescription streamFormat;
+    streamFormat.mSampleRate = _sampleRate;
+    streamFormat.mFormatID = kAudioFormatLinearPCM;
+    streamFormat.mFormatFlags =
     kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved;
-	streamFormat.mBytesPerPacket = four_bytes_per_float;
-	streamFormat.mFramesPerPacket = 1;
-	streamFormat.mBytesPerFrame = four_bytes_per_float;
-	streamFormat.mChannelsPerFrame = _numChannels;
-	streamFormat.mBitsPerChannel = four_bytes_per_float * eight_bits_per_byte;
-	err = AudioUnitSetProperty (_toneUnit,
+    streamFormat.mBytesPerPacket = four_bytes_per_float;
+    streamFormat.mFramesPerPacket = 1;
+    streamFormat.mBytesPerFrame = four_bytes_per_float;
+    streamFormat.mChannelsPerFrame = _numChannels;
+    streamFormat.mBitsPerChannel = four_bytes_per_float * eight_bits_per_byte;
+    err = AudioUnitSetProperty (_toneUnit,
                                 kAudioUnitProperty_StreamFormat,
                                 kAudioUnitScope_Input,
                                 0,
                                 &streamFormat,
                                 sizeof(AudioStreamBasicDescription));
-	NSAssert1(err == noErr, @"Error setting stream format: %hd", err);
+    NSAssert1(err == noErr, @"Error setting stream format: %hd", err);
 }
 
 @end
+
