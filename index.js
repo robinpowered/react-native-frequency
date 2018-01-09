@@ -3,6 +3,6 @@ import {
   NativeModules
 } from 'react-native';
 
-const {FrequencyManager} = NativeModules;
+const {Frequency} = NativeModules;
 
-export default FrequencyManager;
+export default Frequency;

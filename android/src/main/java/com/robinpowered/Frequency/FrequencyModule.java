@@ -1,4 +1,4 @@
-package com.robinpowered.RNFrequency;
+package com.robinpowered.Frequency;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -10,13 +10,13 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 
-public class RNFrequencyModule extends ReactContextBaseJavaModule {
-    private static final String MODULE_NAME = "RNFrequency";
+public class FrequencyModule extends ReactContextBaseJavaModule {
+    private static final String MODULE_NAME = "Frequency";
     private static final int SAMPLE_RATE = 44100;
 
     private AudioSession audioSession;
 
-    public RNFrequencyModule(ReactApplicationContext reactContext) {
+    public FrequencyModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }
 
@@ -87,7 +87,7 @@ public class RNFrequencyModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onMarkerReached(AudioTrack track) {
-                RNFrequencyModule.this.complete();
+                FrequencyModule.this.complete();
             }
         });
 

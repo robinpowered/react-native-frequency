@@ -8,6 +8,7 @@
 @end
 
 @implementation RNFrequency
+RCT_EXPORT_MODULE(Frequency);
 
 static UInt32 const TWO_CHANNELS = 2;
 
@@ -43,8 +44,6 @@ static UInt32 const TWO_CHANNELS = 2;
 {
     return dispatch_get_main_queue();
 }
-
-RCT_EXPORT_MODULE(@"FrequencyManager");
 
 RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
