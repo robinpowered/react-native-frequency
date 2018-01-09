@@ -51,6 +51,8 @@ public class FrequencyModule extends ReactContextBaseJavaModule {
             sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
         }
 
+        // convert to 16 bit pcm sound array
+        // assumes the sample buffer is normalised.
         int idx = 0;
         for (double dVal : sample) {
             short val = (short) (dVal * 32767);
