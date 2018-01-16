@@ -12,7 +12,6 @@ import android.os.Build;
 
 public class FrequencyModule extends ReactContextBaseJavaModule {
     private static final String MODULE_NAME = "Frequency";
-    private static final int SAMPLE_RATE = 44100;
 
     private AudioSession audioSession;
 
@@ -41,45 +40,7 @@ public class FrequencyModule extends ReactContextBaseJavaModule {
             cancel();
         }
 
-        final int dur = (int) duration;
-        final int numOfSamples = dur * SAMPLE_RATE;
-
-        final double sample[] = new double[numOfSamples];
-        final byte soundData[] = new byte[2 * numOfSamples];
-
-        for (int i = 0; i < numOfSamples; ++i) {
-            sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
-        }
-
-        // convert to 16 bit pcm sound array
-        // assumes the sample buffer is normalised.
-        int idx = 0;
-        for (double dVal : sample) {
-            short val = (short) (dVal * 32767);
-            soundData[idx++] = (byte) (val & 0x00ff);
-            soundData[idx++] = (byte) ((val & 0xff00) >>> 8);
-        }
-
-        AudioTrack track;
-
-        // create audio track - methods used differ based on OS version
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            track = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, numOfSamples, AudioTrack.MODE_STATIC);
-        } else {
-            track = new AudioTrack.Builder()
-                    .setAudioFormat(new AudioFormat.Builder()
-                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                            .setSampleRate(SAMPLE_RATE)
-                            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
-                    .setBufferSizeInBytes(numOfSamples).build();
-        }
-
-        // push sample into AudioTrack object
-        track.write(soundData, 0, numOfSamples);
-
-        // callback when track finishes playing
-        track.setNotificationMarkerPosition(numOfSamples / 2);
+        AudioTrack track = FrequencyTrackFactory.create(frequency, duration);
 
         track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override
@@ -137,5 +98,54 @@ class AudioSession {
         return track != null
                 && track.getState() != AudioTrack.STATE_UNINITIALIZED
                 && track.getPlayState() != AudioTrack.PLAYSTATE_STOPPED;
+    }
+}
+
+class FrequencyTrackFactory {
+    static final int SAMPLE_RATE = 44100;
+
+    public static AudioTrack create(double frequency, double duration) {
+        AudioTrack track;
+
+
+        final int dur = (int) duration;
+        final int numOfSamples = dur * SAMPLE_RATE;
+
+        final double sample[] = new double[numOfSamples];
+        final byte soundData[] = new byte[2 * numOfSamples];
+
+        for (int i = 0; i < numOfSamples; ++i) {
+            sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
+        }
+
+        // convert to 16 bit pcm sound array
+        // assumes the sample buffer is normalized.
+        int idx = 0;
+        for (double dVal : sample) {
+            short val = (short) (dVal * 32767);
+            soundData[idx++] = (byte) (val & 0x00ff);
+            soundData[idx++] = (byte) ((val & 0xff00) >>> 8);
+        }
+
+        // create audio track - methods used differ based on OS version
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            track = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT, numOfSamples, AudioTrack.MODE_STATIC);
+        } else {
+            track = new AudioTrack.Builder()
+                    .setAudioFormat(new AudioFormat.Builder()
+                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                            .setSampleRate(SAMPLE_RATE)
+                            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                    .setBufferSizeInBytes(numOfSamples).build();
+        }
+
+        // push sample into AudioTrack object
+        track.write(soundData, 0, numOfSamples);
+
+        // callback when track finishes playing
+        track.setNotificationMarkerPosition(numOfSamples / 2);
+
+        return track;
     }
 }
