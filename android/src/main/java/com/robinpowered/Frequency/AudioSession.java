@@ -27,18 +27,12 @@ class AudioSession {
         }
 
         track.release();
-        track = null;
-
         promise.reject(TRACK_STOPPED_PLAYING, "Track stopped playing");
-        promise = null;
     }
 
     void complete() {
         track.release();
-        track = null;
-
         promise.resolve(true);
-        promise = null;
     }
 
     boolean isPlaying() {

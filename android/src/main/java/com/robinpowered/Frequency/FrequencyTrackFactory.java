@@ -10,30 +10,24 @@ import android.os.Build;
  */
 
 class FrequencyTrackFactory {
+    // number of samples of audio carried per second - higher for better quality/clarity
     static final int SAMPLE_RATE = 44100;
 
+    /**
+     * Generates an AudioTrack instance that plays a specific frequency
+     * for a certain duration
+     *
+     * @param frequency Frequency of the audio track
+     * @param duration Duration of the audio track
+     * @return AudioTrack instance
+     */
     public static AudioTrack create(double frequency, double duration) {
         AudioTrack track;
-
 
         final int dur = (int) duration;
         final int numOfSamples = dur * SAMPLE_RATE;
 
-        final double sample[] = new double[numOfSamples];
-        final byte soundData[] = new byte[2 * numOfSamples];
-
-        for (int i = 0; i < numOfSamples; ++i) {
-            sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
-        }
-
-        // convert to 16 bit pcm sound array
-        // assumes the sample buffer is normalized.
-        int idx = 0;
-        for (double dVal : sample) {
-            short val = (short) (dVal * 32767);
-            soundData[idx++] = (byte) (val & 0x00ff);
-            soundData[idx++] = (byte) ((val & 0xff00) >>> 8);
-        }
+        final byte soundData[] = createSoundData(frequency, numOfSamples);        
 
         // create audio track - methods used differ based on OS version
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -55,5 +49,25 @@ class FrequencyTrackFactory {
         track.setNotificationMarkerPosition(numOfSamples / 2);
 
         return track;
+    }
+
+    static byte[] createSoundData(double frequency, int numberOfSamples) {
+        double sample[] = new double[numberOfSamples];
+        byte soundData[]= new byte[2 * numberOfSamples];
+
+        for (int i = 0; i < numberOfSamples; ++i) {
+            sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
+        }
+
+        // convert to 16 bit pcm sound array
+        // assumes the sample buffer is normalized.
+        int idx = 0;
+        for (double dVal : sample) {
+            short val = (short) (dVal * 32767);
+            soundData[idx++] = (byte) (val & 0x00ff);
+            soundData[idx++] = (byte) ((val & 0xff00) >>> 8);
+        }
+
+        return soundData;
     }
 }
