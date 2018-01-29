@@ -49,6 +49,7 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     if ([self.toneGenRef isPlaying]) {
+        // if audio is still currently playing, prevent stopWithSuccess selector from executing
         [NSObject cancelPreviousPerformRequestsWithTarget:self
                                                  selector:@selector(stopWithSuccess)
                                                    object:nil];
@@ -62,6 +63,8 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
     self.reject = reject;
 
     [self.toneGenRef play];
+
+    // stop playing after specified duration and perform stopWithSuccess selector
     [self performSelector:@selector(stopWithSuccess) withObject:nil afterDelay:duration];
 }
 
