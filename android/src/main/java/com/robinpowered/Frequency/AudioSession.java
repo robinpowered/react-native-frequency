@@ -1,4 +1,4 @@
-package com.robinpowered.RNFrequency;
+package com.robinpowered.Frequency;
 
 import android.media.AudioTrack;
 

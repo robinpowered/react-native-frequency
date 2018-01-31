@@ -1,4 +1,4 @@
-package com.robinpowered.RNFrequency;
+package com.robinpowered.Frequency;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -55,7 +55,7 @@ class FrequencyTrackFactory {
         double sample[] = new double[numberOfSamples];
         byte soundData[]= new byte[2 * numberOfSamples];
 
-        for (int i = 0; i < numberOfSamples; ++i) {
+        for (int i = 0; i < numberOfSamples; i++) {
             sample[i] = Math.sin(2 * Math.PI * i / (SAMPLE_RATE/frequency));
         }
 
