@@ -68,7 +68,6 @@ OSStatus RenderTone(
 }
 
 - (id)initWithFrequency:(double)hertz amplitude:(double)volume {
-    NSLog(@"Initi Frequency %f and %f", hertz, volume);
     if (self = [super init]) {
         _numChannels = 1;
         _channels = calloc(sizeof(TGChannelInfo), _numChannels);
@@ -85,7 +84,6 @@ OSStatus RenderTone(
 }
 
 - (id)initWithChannels:(UInt32)size {
-    NSLog(@"Initializing Channels with size = %d",(unsigned int)size);
     if (self = [super init]) {
         _numChannels = size;
         _channels = calloc(sizeof(TGChannelInfo), _numChannels);
@@ -120,7 +118,6 @@ OSStatus RenderTone(
 }
 
 - (void)play {
-    NSLog(@"Playing Tone Now");
     if (!_toneUnit) {
         [self _createToneUnit];
         // Stop changing parameters on the unit
@@ -143,14 +140,11 @@ OSStatus RenderTone(
 }
 
 - (void)_setupAudioSession {
-    NSLog(@"Setting Up Audio Session");
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     BOOL ok;
     NSError *setCategoryError = nil;
-    //[audioSession setPreferredSampleRate:_sampleRate error:nil];
     ok = [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     [audioSession setActive:YES error:nil];
-    //[audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
     [audioSession setPreferredHardwareSampleRate:_sampleRate error:nil];
     [audioSession setPreferredSampleRate:_sampleRate error:nil];
     NSAssert1(ok, @"Audio error %@", setCategoryError);
@@ -218,4 +212,3 @@ OSStatus RenderTone(
 }
 
 @end
-

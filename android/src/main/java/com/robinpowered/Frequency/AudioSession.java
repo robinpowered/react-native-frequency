@@ -4,10 +4,6 @@ import android.media.AudioTrack;
 
 import com.facebook.react.bridge.Promise;
 
-/**
- * Created by Ying Hang Eng on 1/24/18.
- */
-
 class AudioSession {
     Promise promise;
     AudioTrack track;
@@ -36,8 +32,7 @@ class AudioSession {
     }
 
     boolean isPlaying() {
-        return track != null
-                && track.getState() != AudioTrack.STATE_UNINITIALIZED
+        return track.getState() != AudioTrack.STATE_UNINITIALIZED
                 && track.getPlayState() != AudioTrack.PLAYSTATE_STOPPED;
     }
 }

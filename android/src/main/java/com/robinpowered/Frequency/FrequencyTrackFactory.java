@@ -5,10 +5,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 
-/**
- * Created by Ying Hang Eng on 1/24/18.
- */
-
 class FrequencyTrackFactory {
     // number of samples of audio carried per second - higher for better quality/clarity
     static final int SAMPLE_RATE = 44100;
