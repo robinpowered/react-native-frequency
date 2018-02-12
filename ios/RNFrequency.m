@@ -68,4 +68,19 @@ RCT_EXPORT_METHOD(playFrequency:(double)frequency duration:(double)duration reso
     [self performSelector:@selector(stopWithSuccess) withObject:nil afterDelay:duration];
 }
 
+RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if ([self.toneGenRef isPlaying]) {
+        // if audio is still currently playing, prevent stopWithSuccess selector from executing
+        [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                                 selector:@selector(stopWithSuccess)
+                                                   object:nil];
+        [self stopWithFailure];
+        resolve(@YES);
+    } else {
+        reject(@"NO_TRACK_IS_PLAYING", @"There is no audio track that is currently playing", nil);
+    }
+}
+
 @end

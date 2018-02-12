@@ -56,4 +56,14 @@ public class FrequencyModule extends ReactContextBaseJavaModule {
         // play track
         track.play();
     }
+
+    @ReactMethod
+    public void stop(final Promise promise) {
+        if (audioSession != null && audioSession.isPlaying()) {
+            cancel();
+            promise.resolve(true);
+        } else {
+            promise.reject(new Error("No audio track is currently playing"));
+        }
+    }
 }
