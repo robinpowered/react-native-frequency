@@ -10,6 +10,11 @@
 @implementation RNFrequency
 RCT_EXPORT_MODULE(Frequency);
 
++ (BOOL)requiresMainQueueSetup
+{
+   return YES;
+}
+
 static UInt32 const TWO_CHANNELS = 2;
 
 - (instancetype)init
