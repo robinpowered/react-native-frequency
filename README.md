@@ -1,3 +1,6 @@
+# ⚠️ DEPRECATION NOTICE
+This project is not being actively maintained.
+If you have issues using it, feel free to collaborate in the Issues section and use something like [Patch-Package](https://www.npmjs.com/package/patch-package) to fix any issues you might find.
 
 # react-native-frequency
 
