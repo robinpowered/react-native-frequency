@@ -35,27 +35,28 @@ OSStatus RenderTone(
 
     const double amplitude = 1.0;
     const double sampleRate = 44100.00;
-    const int channel = 0;
 
-    double theta = toneGenerator->_channels[channel].theta;
+    for (int channel = 0; channel < 2; channel++) {
+        double theta = toneGenerator->_channels[channel].theta;
 
-    double theta_increment = 2.0 * M_PI * toneGenerator->_channels[channel].frequency / sampleRate;
+        double theta_increment = 2.0 * M_PI * toneGenerator->_channels[channel].frequency / sampleRate;
 
-    Float32 *buffer = (Float32 *)ioData->mBuffers[channel].mData;
+        Float32 *buffer = (Float32 *)ioData->mBuffers[channel].mData;
 
-    // Generate the samples
-    for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
-        buffer[frame] = sin(theta) * amplitude;
+        // Generate the samples
+        for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
+            buffer[frame] = sin(theta) * amplitude;
 
-        theta += theta_increment;
-        // Basically do modulo
-        if (theta > 2.0 * M_PI) {
-            theta -= 2.0 * M_PI;
+            theta += theta_increment;
+            // Basically do modulo
+            if (theta > 2.0 * M_PI) {
+                theta -= 2.0 * M_PI;
+            }
         }
-    }
 
-    // Store the theta back in the view controller
-    toneGenerator->_channels[channel].theta = theta;
+        // Store the theta back in the view controller
+        toneGenerator->_channels[channel].theta = theta;
+    }
 
     return noErr;
 }
