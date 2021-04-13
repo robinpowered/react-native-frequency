@@ -2,7 +2,7 @@
 {
   "name": "react-native-frequency",
   "version": "2.1.0",
-  "description": "",
+  "description": "Outputs audio frequencies from the device.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,11 @@
     "react-native"
   ],
   "author": "",
-  "license": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinpowered/react-native-frequency.git"
+  },
   "peerDependencies": {
     "react-native": ">0.41.2",
     "react-native-windows": ">0.41.0-rc.1"
