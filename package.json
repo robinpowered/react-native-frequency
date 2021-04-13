@@ -1,7 +1,7 @@
 
 {
   "name": "react-native-frequency",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Outputs audio frequencies from the device.",
   "main": "index.js",
   "scripts": {
